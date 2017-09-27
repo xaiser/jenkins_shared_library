@@ -126,19 +126,32 @@ def call(body) {
 	try {
 		check_param(config)
 
-		for ( build_type in config.build_type ) {
-			for ( compiler in config.compiler ) {
-				for ( arch in config.arch ) {
-					if ( utility.isSkip(compiler, arch, config.skip_composition) ) {
+		def param_parser = new ParameterParser()
+		param_parser.parse(config)
+		def param = param_parser.get_param()
+
+		/* 
+		 * We can not use the for-in loop becasue of a known bug.
+		 * https://issues.jenkins-ci.org/browse/JENKINS-34645.
+		 * And the workaround is to use tranditional for loop.
+		 */
+
+		for ( int btIdx = 0; btIdx < param.build_type.size(); btIdx++ ) {
+			for ( int cIdx = 0; cIdx < param.compiler.size(); cIdx++ ) {
+				for ( int aIdx = 0; aIdx < param.arch.size(); aIdx++ ) {
+					def build_type = param.build_type[btIdx]
+					def compiler = param.compiler[cIdx]
+					def arch = param.arch[aIdx]
+					if ( utility.isSkip(compiler, arch, param.skip_composition) ) {
 						println "skip ${compiler}-${arch}"
 						continue
 					}
-					node_name = "auto" == config.build_node ? utility.get_node_name(compiler, arch) : config.build_node
+					node_name = "auto" == param.build_node ? utility.get_node_name(compiler, arch) : param.build_node
 					def sub_workspace = "${compiler}_${arch}_${build_type}"
 					node("${node_name}") {
 						clean_workspace(compiler, arch, build_type)
-						build(sub_workspace, compiler, arch, build_type, config)
-						test_and_report(sub_workspace, compiler, arch, build_type, config)
+						build(sub_workspace, compiler, arch, build_type, param)
+						test_and_report(sub_workspace, compiler, arch, build_type, param)
 					}
 				}
 			}
@@ -148,9 +161,9 @@ def call(body) {
 		err = catch_err
 		currentBuild.result = 'FAILURE'
 	} finally {
-		boolean is_android = config.containsKey("is_android") && "ON" == config.is_android
+		boolean is_android = param.containsKey("is_android") && "ON" == param.is_android
 		if ( true == is_android) {
-			android_utility.shut_down_AVD(config.ANDROID_SDK_ROOT)
+			android_utility.shut_down_AVD(param.ANDROID_SDK_ROOT)
 		}
 		if(err) {
 			throw err
