@@ -54,7 +54,7 @@ def build(sub_workspace, compiler, arch, build_type, config) {
 			android_utility.start_AVD(config.ANDROID_SDK_ROOT)
 		}
 		stage("Clone for ${compiler} ${arch} ${build_type}") {
-			git url:"${config.git_repo_url}/${config.solution_name}", branch:"${config.git_branch}"
+			git url:"${config.git_repo_url}/${config.solution_name}", branch:"${config.git_branch}", credentialsId: "add credential ID"
 		}
 		stage("build ${compiler} ${arch} ${build_type}") {
 			cg = utility.get_cmake_generator(compiler, arch)
