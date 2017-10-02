@@ -4,14 +4,13 @@ import utility.*
 @Field def utility = new utility()
 
 def send_cmake(cmake_command) {
-	if ( utility.isWindows() ) {
-		bat "cmake ${cmake_command}"
-		//echo "windows"
+	if ( isUni() ) {
+		/* current node is Unix-base */
+		sh "cmake ${cmake_command}"
 		//echo "${cmake_command}"
 	}
 	else {
-		sh "cmake ${cmake_command}"
-		//echo "linux"
+		bat "cmake ${cmake_command}"
 		//echo "${cmake_command}"
 	}
 }
