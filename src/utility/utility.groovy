@@ -34,7 +34,7 @@ String get_cmake_generator(compiler, arch) {
 		}
 
 		if ( "x64" == arch ) {
-			generator += " ${arch}"
+			generator += " Win64"
 		}
 	} else if ( compiler.contains("g++") ) {
 		generator = "Unix Makefiles"

@@ -58,24 +58,26 @@ def build(sub_workspace, compiler, arch, build_type, config) {
 		}
 		stage("build ${compiler} ${arch} ${build_type}") {
 			cg = utility.get_cmake_generator(compiler, arch)
+			def full_proj_name = "${lib_type}${pro_name}Test"
+			String cmakelists_path = "auto" == config.cmakelists_path ? "test/${full_proj_name}" : "${config.cmakelists_path}"
 
 			def test_param = "-DGTEST_XML_OUTPUT=${compiler}_${arch}_${build_type}.xml " + "${config.test_param}"
 
 			if ( true == is_android ) {
 				def android_base = utility.get_android_base(config.ANDROID_SDK_ROOT)
-				cmake act: "config", qt_project: "${lib_type}${pro_name}Test.pro", build_type: "${build_type}", \
+				cmake act: "config", qt_project: "${full_proj_name}.pro", build_type: "${build_type}", \
 					lib_path: "${lib_path}", arch: "${arch}", cmake_generator: "${cg}", \
 					test_param: "${test_param}", \
 					is_android: "ON", android_base: "${android_base}", \
-					CMakeListPath: "test/${lib_type}${pro_name}Test"
+					CMakeListPath: "${cmakelists_path}"
 			} else {
-				cmake act: "config", qt_project: "${lib_type}${pro_name}Test.pro", build_type: "${build_type}", \
+				cmake act: "config", qt_project: "${full_proj_name}.pro", build_type: "${build_type}", \
 					lib_path: "${lib_path}", arch: "${arch}", cmake_generator: "${cg}", \
 					test_param: "${test_param}", \
-					CMakeListPath: "test/${lib_type}${pro_name}Test"
+					CMakeListPath: "${cmakelists_path}"
 			}
 
-			cmake act: "build", project_name: "${lib_type}${pro_name}Test", build_type: "${build_type}"
+			cmake act: "build", project_name: "${full_proj_name}", build_type: "${build_type}"
 		}
 	}
 }
