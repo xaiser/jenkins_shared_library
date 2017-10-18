@@ -55,7 +55,12 @@ def build(sub_workspace, compiler, arch, build_type, config) {
 		stage("build ${compiler} ${arch} ${build_type}") {
 			cg = utility.get_cmake_generator(compiler, arch)
 			def full_proj_name = "${lib_type}${pro_name}"
-			String cmakelists_path = "auto" == config.cmakelists_path ? "proj\\${pro_name}\\${full_proj_name}" : "${config.cmakelists_path}"
+			String cmakelists_path
+			if ( isUnix() ) {
+				cmakelists_path = "auto" == config.cmakelists_path ? "proj/${pro_name}/${full_proj_name}" : "${config.cmakelists_path}"
+			} else {
+				cmakelists_path = "auto" == config.cmakelists_path ? "proj\\${pro_name}\\${full_proj_name}" : "${config.cmakelists_path}"
+			}
 
 			if ( true == is_android ) {
 				cmake act: "config", qt_project: "${full_proj_name}.pro", build_type: "${build_type}", \

@@ -59,7 +59,12 @@ def build(sub_workspace, compiler, arch, build_type, config) {
 		stage("build ${compiler} ${arch} ${build_type}") {
 			cg = utility.get_cmake_generator(compiler, arch)
 			def full_proj_name = "${lib_type}${pro_name}Test"
-			String cmakelists_path = "auto" == config.cmakelists_path ? "test/${full_proj_name}" : "${config.cmakelists_path}"
+			String cmakelists_path
+			if ( isUnix() ) {
+				cmakelists_path = "auto" == config.cmakelists_path ? "test/${full_proj_name}" : "${config.cmakelists_path}"
+			} else {
+				cmakelists_path = "auto" == config.cmakelists_path ? "test\\${full_proj_name}" : "${config.cmakelists_path}"
+			}
 
 			def test_param = "-DGTEST_XML_OUTPUT=${compiler}_${arch}_${build_type}.xml " + "${config.test_param}"
 
