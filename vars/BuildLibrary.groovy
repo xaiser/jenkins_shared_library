@@ -29,11 +29,23 @@ def clean_workspace(compiler, arch, build_type) {
 		def workspace_folder = new File("${WORKSPACE}/${sub_workspace}")
 		if ( workspace_folder.exists() )
 		{
-			def is_delete = workspace_folder.deleteDir()
-			assert is_delete
+			/*
+			 * For unknow reason, the deleteDir would fail at Unix-base node.
+			 * Maybe we can try to install groovy on the node because the "deleteDir()" is provided by Groovy JDK
+			 */
+			if( isUnix() ) {
+				sh "rm -rf ${WORKSPACE}/${sub_workspace}"
+			} else {
+				def is_delete = workspace_folder.deleteDir()
+				assert is_delete
+			}
 		}
-		def is_mkdir = workspace_folder.mkdirs()
-		assert is_mkdir
+		if ( isUnix() ) {
+			sh "mkdir -p ${WORKSPACE}/${sub_workspace}"
+		} else {
+			def is_mkdir = workspace_folder.mkdirs()
+			assert is_mkdir
+		}
 	}
 }
 
